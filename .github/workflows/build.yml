@@ -1,0 +1,26 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+    - name: Checkout current build target
+      uses: actions/checkout@v3
+      with:
+        path: 'Bizhawk'
+        submodules: 'true'
+    - name: Checkout RTCV peer dependency
+      uses: actions/checkout@v3
+      with:
+        repository: 'redscientistlabs/RTCV'
+        ref: '51X'
+        path: 'RTCV'
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Restore packages in RTCV
+      run: msbuild /t:restore '.\RTCV\'
+    - name: Restore packages in Bizhawk
+      run: msbuild /t:restore '.\Bizhawk\Bizhawk.sln'
+    - name: Build current target with MSBuild
+      run: msbuild '.\Bizhawk\Bizhawk.sln'
